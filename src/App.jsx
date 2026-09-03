@@ -3,6 +3,7 @@ import { ArrowUpRight, BarChart3, SlidersHorizontal } from 'lucide-react'
 import AccordionRow from './components/AccordionRow'
 import DocumentationPanel from './components/DocumentationPanel'
 import DocumentSelector from './components/DocumentSelector'
+import PreviewControlsDrawer from './components/PreviewControlsDrawer'
 import SigningOptionsModal from './components/SigningOptionsModal'
 import ApiFixesPanel from './components/ApiFixesPanel'
 import FixesPasswordGate from './components/FixesPasswordGate'
@@ -113,8 +114,8 @@ function App() {
   const allComplete3 = docsComplete3 && amlOk3
 
   return (
-    <div className="min-h-screen w-full bg-[#F5F5F4] px-6 py-12">
-      <div className="mx-auto flex w-full max-w-[670px] flex-col gap-5 pb-[200px]">
+    <div className="flex min-h-screen w-full items-center justify-center bg-[#F5F5F4] px-6 py-12">
+      <PreviewControlsDrawer>
         <button
           type="button"
           onClick={() =>
@@ -134,12 +135,12 @@ function App() {
           All options
         </button>
 
-        <div className="flex items-stretch gap-2">
+        <div className="flex flex-col gap-2">
           <a
             href="/overview.html"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-1 items-center justify-between gap-3 rounded-lg border border-border2 bg-white px-4 py-3 transition-colors hover:border-border1"
+            className="flex items-center justify-between gap-3 rounded-lg border border-border2 bg-white px-4 py-3 transition-colors hover:border-border1"
           >
             <span>
               <span className="block font-sans text-[13px] font-semibold text-ink2">
@@ -155,24 +156,12 @@ function App() {
             href="/chart.html"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border2 bg-white px-4 py-3 font-sans text-[13px] font-semibold text-ink2 transition-colors hover:border-border1"
+            className="flex items-center gap-1.5 rounded-lg border border-border2 bg-white px-4 py-3 font-sans text-[13px] font-semibold text-ink2 transition-colors hover:border-border1"
           >
             <BarChart3 className="h-4 w-4 text-muted" />
             Documentation &amp; Requirements — Overview
           </a>
         </div>
-
-        <SigningOptionsModal
-          open={signingOptionsOpen}
-          onClose={() => setSigningOptionsOpen(false)}
-          methods={signingOptions.methods}
-          setMethod={signingOptions.setMethod}
-          setAllTo={signingOptions.setAllTo}
-          resetToDefault={signingOptions.resetToDefault}
-          executorsAreBeneficiaries={signingOptions.executorsAreBeneficiaries}
-          toggleExecutorsAreBeneficiaries={signingOptions.toggleExecutorsAreBeneficiaries}
-          canBeEmailed={signingOptions.canBeEmailed}
-        />
 
         {allOptionsOpen && (
           <DocumentSelector
@@ -186,23 +175,39 @@ function App() {
             onOpenSigningOptions={() => setSigningOptionsOpen(true)}
           />
         )}
+      </PreviewControlsDrawer>
 
-        <div className="flex gap-1 border-b border-border3">
-          {(allOptionsOpen ? TABS : TABS.filter((t) => t.id === 'option1')).map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              className={`px-3 py-2 font-sans text-xs font-semibold transition-colors ${
-                tab === t.id
-                  ? 'border-b-2 border-green text-green'
-                  : 'border-b-2 border-transparent text-muted'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+      <SigningOptionsModal
+        open={signingOptionsOpen}
+        onClose={() => setSigningOptionsOpen(false)}
+        methods={signingOptions.methods}
+        setMethod={signingOptions.setMethod}
+        setAllTo={signingOptions.setAllTo}
+        resetToDefault={signingOptions.resetToDefault}
+        executorsAreBeneficiaries={signingOptions.executorsAreBeneficiaries}
+        toggleExecutorsAreBeneficiaries={signingOptions.toggleExecutorsAreBeneficiaries}
+        canBeEmailed={signingOptions.canBeEmailed}
+      />
+
+      <div className="mx-auto flex w-full max-w-[670px] flex-col gap-5">
+        {allOptionsOpen && (
+          <div className="flex gap-1 border-b border-border3">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTab(t.id)}
+                className={`px-3 py-2 font-sans text-xs font-semibold transition-colors ${
+                  tab === t.id
+                    ? 'border-b-2 border-green text-green'
+                    : 'border-b-2 border-transparent text-muted'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {tab === 'option1' && (
           <div className="flex flex-col gap-3">
