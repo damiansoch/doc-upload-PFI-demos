@@ -21,7 +21,11 @@ const EXAMPLES_X = PANEL_X + PANEL_W + 240
 const EXAMPLE_W = 430
 const EXAMPLE_GAP_X = 180
 const ROW_TOP = 190
-const PANEL_TOP = ROW_TOP + 160
+// Vertically centered against the full stack of example rows below (AML
+// through Awaiting Signature) — not tied to ROW_TOP, since the main panel
+// and its callouts are much shorter than the four rows they explain, and
+// pinning it to the top left it stranded above almost the whole diagram.
+const PANEL_TOP = 1570
 
 // Where each group's example chain starts vertically — deliberately NOT
 // derived from that group's position inside the (much more tightly packed)
