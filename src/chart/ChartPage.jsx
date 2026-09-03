@@ -6,7 +6,7 @@ import AmlPersonItem from '../components/AmlPersonItem'
 import DocumentItem from '../components/DocumentItem'
 import { AML_REQUIREMENT, DOCUMENTS } from '../data/documents'
 
-export const CANVAS_W = 3260
+export const CANVAS_W = 4000
 export const CANVAS_H = 4300
 
 // Fixed pixel column geometry, in canvas coordinates (not page/viewport
@@ -15,11 +15,11 @@ export const CANVAS_H = 4300
 // signing-methods diagram).
 const LEFT_X = 40
 const LEFT_W = 360
-const PANEL_X = LEFT_X + LEFT_W + 80
+const PANEL_X = LEFT_X + LEFT_W + 240
 const PANEL_W = 670
-const EXAMPLES_X = PANEL_X + PANEL_W + 80
+const EXAMPLES_X = PANEL_X + PANEL_W + 240
 const EXAMPLE_W = 430
-const EXAMPLE_GAP_X = 60
+const EXAMPLE_GAP_X = 180
 const ROW_TOP = 190
 const PANEL_TOP = ROW_TOP + 160
 
@@ -41,7 +41,7 @@ const CHAIN_ROW_Y = {
 // on — authored separately from CHAIN_ROW_Y since it isn't the next step of
 // any one route, but the common destination of all of them. Placed to the
 // right of every route's furthest column, roughly centered on their span.
-const FINAL_X = 2700
+const FINAL_X = 3380
 const FINAL_Y = 1500
 
 // One representative document per group — enough to show every branch of
