@@ -4,6 +4,7 @@ import {
   Circle,
   Clock,
   Download,
+  Eye,
   FileSignature,
   Printer,
   RefreshCw,
@@ -261,6 +262,16 @@ export default function DocumentItem({ doc, status, onStatusChange }) {
                     />
                   </label>
                 </div>
+              )}
+
+              {kind === 'monitor' && (
+                <button
+                  type="button"
+                  className={`${QUICK_BTN} border border-border1 bg-white text-ink`}
+                >
+                  <Eye className="h-3 w-3" />
+                  Preview
+                </button>
               )}
 
               {inProgress && (

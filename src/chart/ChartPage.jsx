@@ -6,8 +6,8 @@ import AmlPersonItem from '../components/AmlPersonItem'
 import DocumentItem from '../components/DocumentItem'
 import { AML_REQUIREMENT, DOCUMENTS } from '../data/documents'
 
-export const CANVAS_W = 2760
-export const CANVAS_H = 3200
+export const CANVAS_W = 3260
+export const CANVAS_H = 4300
 
 // Fixed pixel column geometry, in canvas coordinates (not page/viewport
 // coordinates — this whole page renders inside PannableCanvas, so
@@ -33,8 +33,16 @@ const PANEL_TOP = ROW_TOP + 160
 const CHAIN_ROW_Y = {
   aml: ROW_TOP,
   sign: ROW_TOP + 610,
-  action: ROW_TOP + 1710,
+  action: ROW_TOP + 1760,
+  awaiting: ROW_TOP + 3010,
 }
+
+// The single shared "everything's done" endpoint all four routes converge
+// on — authored separately from CHAIN_ROW_Y since it isn't the next step of
+// any one route, but the common destination of all of them. Placed to the
+// right of every route's furthest column, roughly centered on their span.
+const FINAL_X = 2700
+const FINAL_Y = 1500
 
 // One representative document per group — enough to show every branch of
 // getActionKind() without the visual noise of every document in the real
@@ -49,6 +57,10 @@ const SNAPSHOT_DOCS = SNAPSHOT_IDS.map((id) => DOCUMENTS.find((d) => d.id === id
 const SNAPSHOT_STATUSES = Object.fromEntries(SNAPSHOT_IDS.map((id) => [id, 'pending']))
 const SNAPSHOT_AML_UPLOADED = Object.fromEntries(AML_REQUIREMENT.people.map((p) => [p.id, false]))
 
+// Same snapshot, everything signed — the final convergence example below.
+const FINAL_STATUSES = Object.fromEntries(SNAPSHOT_IDS.map((id) => [id, 'completed']))
+const FINAL_AML_UPLOADED = Object.fromEntries(AML_REQUIREMENT.people.map((p) => [p.id, true]))
+
 // The two Signature Required documents, referenced directly (not re-derived
 // by filtering) for the wet-vs-embedded example below.
 const CERT_OF_TITLE = DOCUMENTS.find((d) => d.id === 'certificate-of-title')
@@ -57,6 +69,10 @@ const SOLICITOR_LOU = DOCUMENTS.find((d) => d.id === 'solicitor-letter-of-undert
 // The Action Required example — the only document in the set signed by a
 // third party rather than the solicitor.
 const RENUNCIATION = DOCUMENTS.find((d) => d.id === 'renunciation-of-probate')
+
+// The Awaiting Signature example — email/DocuSign, no action for the
+// solicitor beyond monitoring.
+const BENEFICIARIES = DOCUMENTS.find((d) => d.id === 'beneficiaries-irrevocable-instruction')
 
 // The real component, not a redrawn mockup — reusing DocumentationPanel
 // means this "image" is pixel-accurate today and stays accurate if the real
@@ -381,6 +397,59 @@ const EXAMPLES = [
       </GroupSection>
     ),
   },
+  // Awaiting Signature's own row.
+  {
+    id: 'awaiting-monitor',
+    sourceId: 'awaiting',
+    explanation: [
+      "There's no action for the solicitor here at all — only",
+      'monitoring until it comes back signed. They can preview the',
+      'document, but the signers simply follow the standard DocuSign',
+      'email flow on their own.',
+    ],
+    content: (
+      <GroupSection
+        tone="blue"
+        title="Awaiting Signature"
+        subtitle="Sent directly to the signer's registered email address for electronic signature via DocuSign."
+        count={1}
+        defaultOpen
+      >
+        <DocumentItem
+          doc={BENEFICIARIES}
+          status="pending"
+          onStatusChange={() => {}}
+          open
+          onOpenChange={() => {}}
+        />
+      </GroupSection>
+    ),
+  },
+  // The shared endpoint every route leads to, regardless of which of the
+  // four signing paths a document took — everything's signed, the panel is
+  // fully collapsed back down to its resting state.
+  {
+    id: 'final-complete',
+    sourceExampleIds: ['aml-completed', 'sign-completed', 'action-completed', 'awaiting-monitor'],
+    fixedPos: { x: FINAL_X, y: FINAL_Y },
+    explanation: [
+      'This is the last stage for every route: once every document and',
+      'identity check is signed, each group collapses back down showing',
+      "Complete, and there's nothing further for the solicitor to do here.",
+    ],
+    content: (
+      <AccordionRow title="Documentation & Requirements" isOpen onToggle={() => {}}>
+        <DocumentationPanel
+          documents={SNAPSHOT_DOCS}
+          amlIncluded
+          docStatuses={FINAL_STATUSES}
+          setDocStatus={() => {}}
+          amlUploaded={FINAL_AML_UPLOADED}
+          setAmlUploaded={() => {}}
+        />
+      </AccordionRow>
+    ),
+  },
 ]
 
 // Mostly-vertical connections (small x-gap, large y-gap) — the left
@@ -435,7 +504,9 @@ export default function ChartPage() {
   // every later step sits to the right of the one before it, same row.
   const positions = {}
   for (const ex of EXAMPLES) {
-    if (ex.sourceExampleId) {
+    if (ex.fixedPos) {
+      positions[ex.id] = ex.fixedPos
+    } else if (ex.sourceExampleId) {
       const prev = positions[ex.sourceExampleId]
       positions[ex.id] = prev ? { x: prev.x + EXAMPLE_W + EXAMPLE_GAP_X, y: prev.y } : null
     } else {
@@ -506,6 +577,35 @@ export default function ChartPage() {
         {EXAMPLES.map((ex) => {
           const pos = positions[ex.id]
           if (!pos) return null
+          // Convergence node — several routes' last steps all point at the
+          // same shared endpoint, arriving from wildly different rows, so
+          // each arrow picks whichever curve emphasis fits its own
+          // dx/dy instead of assuming one shape for all of them.
+          if (ex.sourceExampleIds) {
+            return (
+              <g key={`ex-${ex.id}`}>
+                {ex.sourceExampleIds.map((srcId) => {
+                  const src = positions[srcId]
+                  if (!src) return null
+                  const x1 = src.x + EXAMPLE_W
+                  const y1 = src.y + 30
+                  const x2 = pos.x
+                  const y2 = pos.y + 30
+                  const curve = Math.abs(y2 - y1) > Math.abs(x2 - x1) ? bezierV : bezierH
+                  return (
+                    <path
+                      key={srcId}
+                      d={curve(x1, y1, x2, y2)}
+                      fill="none"
+                      stroke="#B8B8B8"
+                      strokeWidth={1.5}
+                      markerEnd="url(#chart-arrowhead)"
+                    />
+                  )
+                })}
+              </g>
+            )
+          }
           // Chained (example→example) arrows are always same-row, purely
           // horizontal — bezierH. The first step of a chain now often has a
           // real vertical jump too (its row is independent of the panel

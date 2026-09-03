@@ -4,6 +4,7 @@ import {
   Circle,
   Clock,
   Download,
+  Eye,
   FileSignature,
   Printer,
   Upload,
@@ -246,6 +247,16 @@ export default function DocumentItem({
 
         {open && (
           <div className="border-t border-border3 px-4 pb-4 pt-3">
+            {kind === 'monitor' && (
+              <button
+                type="button"
+                className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-border1 bg-white px-3 py-1.5 font-sans text-xs font-medium text-ink"
+              >
+                <Eye className="h-3.5 w-3.5" />
+                Preview document
+              </button>
+            )}
+
             <p className="font-sans text-xs leading-[18px] text-muted">
               <span className="font-medium text-ink2">Who signs: </span>
               {doc.signerLabel} — {doc.signerDetail}
