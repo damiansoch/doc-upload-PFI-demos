@@ -1,3 +1,4 @@
+import { Settings2 } from 'lucide-react'
 import { DOCUMENTS, AML_REQUIREMENT, METHOD_INFO, partyName } from '../data/documents'
 
 const METHOD_ORDER = ['email', 'embedded', 'wet']
@@ -42,6 +43,7 @@ export default function DocumentSelector({
   toggleAml,
   selectAll,
   clearAll,
+  onOpenSigningOptions,
 }) {
   return (
     <div className="rounded-lg border border-border2 bg-[#FAFAF9] p-4">
@@ -55,14 +57,26 @@ export default function DocumentSelector({
             this selection applies to every option below.
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-2 font-sans text-xs font-semibold">
-          <button type="button" onClick={selectAll} className="text-green">
-            Select all
-          </button>
-          <span className="text-border2">|</span>
-          <button type="button" onClick={clearAll} className="text-muted">
-            Clear all
-          </button>
+        <div className="flex shrink-0 flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 font-sans text-xs font-semibold">
+            <button type="button" onClick={selectAll} className="text-green">
+              Select all
+            </button>
+            <span className="text-border2">|</span>
+            <button type="button" onClick={clearAll} className="text-muted">
+              Clear all
+            </button>
+          </div>
+          {onOpenSigningOptions && (
+            <button
+              type="button"
+              onClick={onOpenSigningOptions}
+              className="flex items-center gap-1.5 rounded-lg border border-border2 bg-white px-3 py-1.5 font-sans text-xs font-semibold text-ink2 transition-colors hover:border-border1"
+            >
+              <Settings2 className="h-3.5 w-3.5 text-muted" />
+              Options
+            </button>
+          )}
         </div>
       </div>
 

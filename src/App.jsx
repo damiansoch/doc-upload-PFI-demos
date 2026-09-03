@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { ArrowUpRight, BarChart3, Settings2 } from 'lucide-react'
+import { ArrowUpRight, BarChart3, SlidersHorizontal } from 'lucide-react'
 import AccordionRow from './components/AccordionRow'
 import DocumentationPanel from './components/DocumentationPanel'
 import DocumentSelector from './components/DocumentSelector'
 import SigningOptionsModal from './components/SigningOptionsModal'
 import ApiFixesPanel from './components/ApiFixesPanel'
+import FixesPasswordGate from './components/FixesPasswordGate'
 import useDocumentationState from './hooks/useDocumentationState'
 import useDocumentSelection from './hooks/useDocumentSelection'
 import useSigningOptions from './hooks/useSigningOptions'
@@ -49,6 +50,7 @@ function App() {
   const [openId2, setOpenId2] = useState(null)
   const [openId3, setOpenId3] = useState(null)
   const [signingOptionsOpen, setSigningOptionsOpen] = useState(false)
+  const [allOptionsOpen, setAllOptionsOpen] = useState(false)
 
   const documentationState = useDocumentationState()
   const documentationState2 = useDocumentationState2()
@@ -113,6 +115,25 @@ function App() {
   return (
     <div className="min-h-screen w-full bg-[#F5F5F4] px-6 py-12">
       <div className="mx-auto flex w-full max-w-[670px] flex-col gap-5 pb-[200px]">
+        <button
+          type="button"
+          onClick={() =>
+            setAllOptionsOpen((v) => {
+              const next = !v
+              // Option 2/3 and Fixes are only reachable with "All options"
+              // open — closing it while sitting on one of them would leave
+              // the tab strip showing a tab that no longer has a button, so
+              // fall back to Option 1.
+              if (!next) setTab('option1')
+              return next
+            })
+          }
+          className="flex w-fit items-center gap-1.5 rounded-full border border-border2 bg-white px-3 py-1.5 font-sans text-xs font-semibold text-ink2 transition-colors hover:border-border1"
+        >
+          <SlidersHorizontal className="h-3.5 w-3.5 text-muted" />
+          All options
+        </button>
+
         <div className="flex items-stretch gap-2">
           <a
             href="/overview.html"
@@ -130,18 +151,6 @@ function App() {
             </span>
             <ArrowUpRight className="h-4 w-4 shrink-0 text-muted" />
           </a>
-          <button
-            type="button"
-            onClick={() => setSigningOptionsOpen(true)}
-            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border2 bg-white px-4 py-3 font-sans text-[13px] font-semibold text-ink2 transition-colors hover:border-border1"
-          >
-            <Settings2 className="h-4 w-4 text-muted" />
-            Options
-          </button>
-          {/* Placeholder destination — opens a blank full-screen page for now
-              (see src/chart/ChartPage.jsx); the actual chart is a follow-up
-              step, same "button + full-screen new tab" pattern as the
-              signing-methods diagram above. */}
           <a
             href="/chart.html"
             target="_blank"
@@ -149,7 +158,7 @@ function App() {
             className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border2 bg-white px-4 py-3 font-sans text-[13px] font-semibold text-ink2 transition-colors hover:border-border1"
           >
             <BarChart3 className="h-4 w-4 text-muted" />
-            New chart
+            Documentation &amp; Requirements — Overview
           </a>
         </div>
 
@@ -165,18 +174,21 @@ function App() {
           canBeEmailed={signingOptions.canBeEmailed}
         />
 
-        <DocumentSelector
-          documents={effectiveDocuments}
-          selectedIds={selection.selectedIds}
-          toggleDoc={selection.toggleDoc}
-          amlIncluded={selection.amlIncluded}
-          toggleAml={selection.toggleAml}
-          selectAll={selection.selectAll}
-          clearAll={selection.clearAll}
-        />
+        {allOptionsOpen && (
+          <DocumentSelector
+            documents={effectiveDocuments}
+            selectedIds={selection.selectedIds}
+            toggleDoc={selection.toggleDoc}
+            amlIncluded={selection.amlIncluded}
+            toggleAml={selection.toggleAml}
+            selectAll={selection.selectAll}
+            clearAll={selection.clearAll}
+            onOpenSigningOptions={() => setSigningOptionsOpen(true)}
+          />
+        )}
 
         <div className="flex gap-1 border-b border-border3">
-          {TABS.map((t) => (
+          {(allOptionsOpen ? TABS : TABS.filter((t) => t.id === 'option1')).map((t) => (
             <button
               key={t.id}
               type="button"
@@ -287,7 +299,9 @@ function App() {
 
         {tab === 'fixes' && (
           <div className="overflow-hidden rounded-lg border border-border2">
-            <ApiFixesPanel />
+            <FixesPasswordGate>
+              <ApiFixesPanel />
+            </FixesPasswordGate>
           </div>
         )}
       </div>
