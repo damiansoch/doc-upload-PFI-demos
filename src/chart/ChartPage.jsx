@@ -456,17 +456,14 @@ const EXAMPLES = [
   },
 ]
 
-// Mostly-vertical connections (small x-gap, large y-gap) — the left
-// callouts into the main panel.
-function bezierV(x1, y1, x2, y2) {
-  const dy = (y2 - y1) / 2
-  return `M ${x1},${y1} C ${x1},${y1 + dy} ${x2},${y2 - dy} ${x2},${y2}`
-}
-
-// Mostly-horizontal connections (large x-gap) — panel into an example
-// chain, and each chained step into the next, left to right.
-function bezierH(x1, y1, x2, y2) {
-  const dx = (x2 - x1) / 2
+// Every connection in this diagram flows left to right, so every arrow
+// leaves its source and arrives at its destination on a horizontal tangent
+// — the vertical distance (which can be huge, e.g. panel down to the
+// Awaiting Signature row) is absorbed as a smooth S-curve in the middle,
+// rather than the arrow shooting off near-vertically right at the source
+// the way a vertical-tangent curve does on a short, steep connection.
+function flowCurve(x1, y1, x2, y2) {
+  const dx = Math.max((x2 - x1) * 0.55, 40)
   return `M ${x1},${y1} C ${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`
 }
 
@@ -570,7 +567,7 @@ export default function ChartPage() {
             return (
               <path
                 key={c.id}
-                d={bezierV(LEFT_X + LEFT_W, t.top + 30, PANEL_X, t.centerY)}
+                d={flowCurve(LEFT_X + LEFT_W, t.top + 30, PANEL_X, t.centerY)}
                 fill="none"
                 stroke="#B8B8B8"
                 strokeWidth={1.5}
@@ -582,24 +579,17 @@ export default function ChartPage() {
           const pos = positions[ex.id]
           if (!pos) return null
           // Convergence node — several routes' last steps all point at the
-          // same shared endpoint, arriving from wildly different rows, so
-          // each arrow picks whichever curve emphasis fits its own
-          // dx/dy instead of assuming one shape for all of them.
+          // same shared endpoint, arriving from wildly different rows.
           if (ex.sourceExampleIds) {
             return (
               <g key={`ex-${ex.id}`}>
                 {ex.sourceExampleIds.map((srcId) => {
                   const src = positions[srcId]
                   if (!src) return null
-                  const x1 = src.x + EXAMPLE_W
-                  const y1 = src.y + 30
-                  const x2 = pos.x
-                  const y2 = pos.y + 30
-                  const curve = Math.abs(y2 - y1) > Math.abs(x2 - x1) ? bezierV : bezierH
                   return (
                     <path
                       key={srcId}
-                      d={curve(x1, y1, x2, y2)}
+                      d={flowCurve(src.x + EXAMPLE_W, src.y + 30, pos.x, pos.y + 30)}
                       fill="none"
                       stroke="#B8B8B8"
                       strokeWidth={1.5}
@@ -610,17 +600,14 @@ export default function ChartPage() {
               </g>
             )
           }
-          // Chained (example→example) arrows are always same-row, purely
-          // horizontal — bezierH. The first step of a chain now often has a
-          // real vertical jump too (its row is independent of the panel
-          // group's own position), so it uses bezierV instead, same as the
-          // left callouts.
+          // Chained (example→example) arrows: same row, previous step into
+          // this one, left to right.
           if (ex.sourceExampleId) {
             const prev = positions[ex.sourceExampleId]
             return (
               <path
                 key={`ex-${ex.id}`}
-                d={bezierH(prev.x + EXAMPLE_W, prev.y + 30, pos.x, pos.y + 30)}
+                d={flowCurve(prev.x + EXAMPLE_W, prev.y + 30, pos.x, pos.y + 30)}
                 fill="none"
                 stroke="#B8B8B8"
                 strokeWidth={1.5}
@@ -632,7 +619,7 @@ export default function ChartPage() {
           return (
             <path
               key={`ex-${ex.id}`}
-              d={bezierV(PANEL_X + PANEL_W, t.centerY, pos.x, pos.y + 30)}
+              d={flowCurve(PANEL_X + PANEL_W, t.centerY, pos.x, pos.y + 30)}
               fill="none"
               stroke="#B8B8B8"
               strokeWidth={1.5}
