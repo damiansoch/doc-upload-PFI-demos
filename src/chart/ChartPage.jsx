@@ -475,10 +475,26 @@ export default function ChartPage() {
     const measure = () => {
       const panel = panelRef.current
       if (!panel) return
+      // This whole diagram lives inside PannableCanvas's single scaled/
+      // translated wrapper, so raw viewport-space pixel differences are the
+      // CANVAS-space distance times the current zoom. That's invisible at
+      // mount (PannableCanvas always starts at scale 1), but this effect
+      // also reruns on every window resize — and if the solicitor has
+      // zoomed the canvas by then, measuring without correcting for scale
+      // silently shifts every target, which is exactly what makes arrows
+      // drift off their card after a resize. Dividing by the live scale
+      // keeps every measurement in true canvas-space regardless of zoom.
+      let scaleEl = panel.parentElement
+      while (scaleEl && !scaleEl.style.transform?.includes('scale')) {
+        scaleEl = scaleEl.parentElement
+      }
+      const scaleMatch = scaleEl?.style.transform?.match(/scale\(([\d.]+)\)/)
+      const scale = scaleMatch ? parseFloat(scaleMatch[1]) : 1
+
       const panelRect = panel.getBoundingClientRect()
       // panelRect.top corresponds to PANEL_TOP in canvas coordinates, so any
       // rect measured against panelRect converts to canvas coordinates by
-      // adding PANEL_TOP back in.
+      // dividing out the zoom and adding PANEL_TOP back in.
       const next = {}
       for (const c of CALLOUTS) {
         const leaf = [...panel.querySelectorAll('*')].find(
@@ -488,8 +504,8 @@ export default function ChartPage() {
         if (!card) continue
         const r = card.getBoundingClientRect()
         next[c.id] = {
-          top: r.top - panelRect.top + PANEL_TOP,
-          centerY: r.top - panelRect.top + r.height / 2 + PANEL_TOP,
+          top: (r.top - panelRect.top) / scale + PANEL_TOP,
+          centerY: (r.top - panelRect.top) / scale + r.height / scale / 2 + PANEL_TOP,
         }
       }
       setTargets(next)
