@@ -64,7 +64,7 @@ export default function AmlPersonItem({ person, uploaded, onUpload }) {
             <ShieldCheck className="h-4 w-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="min-w-0 flex-1 truncate font-sans text-[14px] font-semibold leading-[18px] text-ink2">
                 {person.name} — KYC certification
               </p>

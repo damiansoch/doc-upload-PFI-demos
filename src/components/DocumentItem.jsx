@@ -202,9 +202,9 @@ export default function DocumentItem({
         <button
           type="button"
           onClick={() => onOpenChange(!open)}
-          className="flex w-full items-start justify-between gap-3 p-4 text-left"
+          className="flex w-full flex-wrap items-start justify-between gap-x-3 gap-y-2 p-4 text-left"
         >
-          <div className="flex items-start gap-3">
+          <div className="flex min-w-0 items-start gap-3">
             <span
               className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${iconToneClass}`}
             >
@@ -234,7 +234,7 @@ export default function DocumentItem({
             </span>
           </div>
 
-          <span className="flex shrink-0 flex-col items-end gap-1.5">
+          <span className="ml-auto flex shrink-0 flex-col items-end gap-1.5">
             <span className="flex items-center gap-3">
               <StatusPill tone={pill.tone}>{pill.label}</StatusPill>
               <ChevronButton open={open} />

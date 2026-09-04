@@ -41,9 +41,9 @@ export default function GroupSection({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-3 p-4 text-left"
+        className="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2 p-4 text-left"
       >
-        <span className="flex items-center gap-2.5">
+        <span className="flex min-w-0 items-center gap-2.5">
           {complete ? (
             <CheckCircle2 className="h-4 w-4 shrink-0 text-green" />
           ) : (
@@ -51,7 +51,7 @@ export default function GroupSection({
           )}
           <span className="font-sans text-[13px] font-semibold text-ink2">{title}</span>
           <span
-            className={`rounded-full px-2 py-0.5 font-sans text-[11px] font-semibold ${
+            className={`shrink-0 rounded-full px-2 py-0.5 font-sans text-[11px] font-semibold ${
               complete ? 'bg-green/10 text-green' : 'bg-[#F5F5F4] text-muted'
             }`}
           >
@@ -59,7 +59,7 @@ export default function GroupSection({
           </span>
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`ml-auto h-4 w-4 shrink-0 text-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       </button>
       {subtitle && (

@@ -13,7 +13,7 @@ export default function AccordionRow({
       <button
         type="button"
         onClick={onToggle}
-        className={`flex h-[60px] w-full items-center justify-between pl-[16px] pr-4 sm:pl-[34px] ${
+        className={`flex min-h-[60px] w-full flex-wrap items-center justify-between gap-x-3 gap-y-2 py-2.5 pl-[16px] pr-4 sm:flex-nowrap sm:pl-[34px] ${
           isOpen ? 'border-b border-border1' : ''
         }`}
       >
@@ -28,7 +28,7 @@ export default function AccordionRow({
           </span>
         </span>
 
-        <span className="flex items-center gap-4">
+        <span className="ml-auto flex items-center gap-4">
           {actionRequired && (
             <span className="whitespace-nowrap rounded-full bg-brandRed px-[10px] py-1 font-sans text-xs font-semibold leading-4 text-white">
               Action required

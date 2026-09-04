@@ -221,7 +221,12 @@ export default function DocumentItem({ doc, status, onStatusChange }) {
             {iconNode}
           </span>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-2">
+            {/* flex-wrap is the fallback, not the plan — the quick actions
+                are meant to sit on the name's own line (see QUICK_BTN), but
+                monitor-kind items can show two of them (Preview + Check for
+                update) at once, which doesn't reliably fit next to even a
+                fully truncated name on a narrow phone. */}
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="min-w-0 flex-1 truncate font-sans text-[14px] font-semibold leading-[18px] text-ink2">
                 {doc.name}
               </p>
